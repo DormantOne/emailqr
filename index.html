@@ -4,10 +4,30 @@
     <meta charset="UTF-8">
     <title>Email QR Code Generator</title>
     <style>
+        /* Basic Styles */
         .small-button {
             padding: 5px 10px;
             font-size: 12px;
             margin: 0 5px;
+        }
+        #emailInput, .small-button {
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Styles for Mobile Devices */
+        @media (max-width: 600px) {
+            #emailInput, .small-button {
+                width: 100%;
+                padding: 15px;
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+            canvas {
+                width: 100%;
+                max-width: 300px; /* Limiting max width of QR code */
+                height: auto;
+                margin-top: 20px;
+            }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
