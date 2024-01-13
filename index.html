@@ -7,41 +7,42 @@
     <!-- Viewport Meta Tag -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <style>
-        /* Basic Styles for Larger Devices */
-        .small-button {
-            padding: 5px 10px;
-            font-size: 12px;
-            margin: 0 5px;
+<style>
+    /* Basic Styles for Larger Devices */
+    .small-button {
+        padding: 5px 10px;
+        font-size: 12px;
+        margin: 0 5px;
+    }
+    #emailInput, .small-button {
+        margin-bottom: 10px;
+    }
+
+    /* Adjusted Styles for Mobile Devices */
+    @media (max-width: 600px) {
+        body {
+            font-size: 14px; /* Slightly smaller font size */
         }
         #emailInput, .small-button {
+            width: 90%; /* Reducing width to 90% */
+            padding: 10px; /* Slightly smaller padding */
+            font-size: 16px; /* Slightly smaller font size for buttons and input */
             margin-bottom: 10px;
         }
-
-        /* Adjusted Styles for Mobile Devices */
-        @media (max-width: 600px) {
-            body {
-                font-size: 14px; /* Slightly smaller font size */
-            }
-            #emailInput, .small-button {
-                width: 90%;
-                padding: 10px; /* Slightly smaller padding */
-                font-size: 16px; /* Slightly smaller font size for buttons and input */
-                margin-bottom: 10px;
-            }
-            canvas {
-                width: 90%;
-                max-width: 250px; /* Slightly smaller max width of QR code */
-                height: auto;
-                margin-top: 15px;
-            }
+        canvas {
+            width: 90%; /* Reducing width to 90% */
+            max-width: 250px; /* Slightly smaller max width of QR code */
+            height: auto;
+            margin-top: 15px;
         }
-    </style>
+    }
+</style>
+
     <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
 </head>
 <body>
 
-<h2>Email QR Code Generator</h2>
+<h1>Email QR Code Generator</h1>
 
 <p>Please put in your email here:</p>
 <input type="email" id="emailInput" placeholder="Enter your email">
@@ -49,9 +50,10 @@
     <button class="small-button" onclick="generateEmailQRCode('Exchange Emails', 'Exchanging contact information.')">Exchange Emails</button>
     <button class="small-button" onclick="generateEmailQRCode('Observe Ultrasound Procedure', 'After sending this message, when you have time, please go to this link and be advised this is just for demonstration only: https://www.shadysidehandbook.info/copy-of-point-of-care-procedure-log-1')">Observe Ultrasound Procedure</button>
     <button class="small-button" onclick="generateEmailQRCode('High Five', 'Thank you')">High Five</button>
+<canvas id="qrcode"></canvas>
 </div>
 
-<canvas id="qrcode"></canvas>
+
 
 <script>
     function generateQRCode(mailtoLink) {
