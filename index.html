@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email QR Code Generator</title>
+    <style>
+        .small-button {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 0 5px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
+</head>
+<body>
+
+<h2>Email QR Code Generator</h2>
+
+<p>Please put in your email here:</p>
+<input type="email" id="emailInput" placeholder="Enter your email">
+    <br /><br />
+<div>
+    <button class="small-button" onclick="generateEmailQRCode('Exchange Emails', 'Exchanging contact information.')">Exchange Emails</button>
+    <button class="small-button" onclick="generateEmailQRCode('High Five', 'Thank you')">High Five</button>
+    <button class="small-button" onclick="generateEmailQRCode('Observe Ultrasound Procedure', 'After sending this message, when you have time, please go to this link and be advised this is just for demonstration only: https://www.shadysidehandbook.info/copy-of-point-of-care-procedure-log-1')">Observe US</button>
+    
+</div>
+    <br /><br />
+
+
+<canvas id="qrcode"></canvas>
+
+<script>
+    function generateQRCode(mailtoLink) {
+    if (mailtoLink) {
+        new QRious({
+            element: document.getElementById('qrcode'),
+            value: mailtoLink,
+            size: 200
+        });
+    }
+}
+
+function generateEmailQRCode(subject, body) {
+    var email = document.getElementById('emailInput').value;
+    if (email) {
+        var mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        localStorage.setItem('userEmail', email);
+        generateQRCode(mailtoLink);
+    } else {
+        alert("Please enter a valid email.");
+    }
+}
+
+window.onload = function() {
+    var savedEmail = localStorage.getItem('userEmail');
+    if (savedEmail) {
+        document.getElementById('emailInput').value = savedEmail;
+    }
+};
+
+</script>
+
+</body>
+</html>
