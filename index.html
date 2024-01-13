@@ -3,41 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Email QR Code Generator</title>
-    
-    <!-- Viewport Meta Tag -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-    /* Basic Styles for Larger Devices */
-    .small-button {
-        padding: 5px 10px;
-        font-size: 12px;
-        margin: 0 5px;
-    }
-    #emailInput, .small-button {
-        margin-bottom: 10px;
-    }
-
-    /* Adjusted Styles for Mobile Devices */
-    @media (max-width: 600px) {
-        body {
-            font-size: 14px; /* Slightly smaller font size */
+    <style>
+        /* Basic Styles for Larger Devices */
+        .small-button {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 0 5px;
         }
         #emailInput, .small-button {
-            width: 90%; /* Reducing width to 90% */
-            padding: 10px; /* Slightly smaller padding */
-            font-size: 16px; /* Slightly smaller font size for buttons and input */
             margin-bottom: 10px;
         }
-        canvas {
-            width: 90%; /* Reducing width to 90% */
-            max-width: 250px; /* Slightly smaller max width of QR code */
-            height: auto;
-            margin-top: 15px;
-        }
-    }
-</style>
 
+        /* Adjusted Styles for Mobile Devices */
+        @media (max-width: 600px) {
+            body {
+                font-size: 14px; /* Slightly smaller font size */
+            }
+            #emailInput, .small-button {
+                width: 90%; /* Reducing width to 90% */
+                padding: 10px; /* Slightly smaller padding */
+                font-size: 16px; /* Slightly smaller font size for buttons and input */
+                margin-bottom: 10px;
+            }
+            canvas {
+                width: 90%; /* Reducing width to 90% */
+                max-width: 250px; /* Slightly smaller max width of QR code */
+                height: auto;
+                margin-top: 15px;
+            }
+        }
+
+        /* Style for active button */
+        .active-button {
+            background-color: #4CAF50; /* Example active color, change as needed */
+            color: white;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
 </head>
 <body>
@@ -47,43 +49,52 @@
 <p>Please put in your email here:</p>
 <input type="email" id="emailInput" placeholder="Enter your email">
 <div>
-    <button class="small-button" onclick="generateEmailQRCode('Exchange Emails', 'Exchanging contact information.')">Exchange Emails</button>
-    <button class="small-button" onclick="generateEmailQRCode('Observe Ultrasound Procedure', 'After sending this message, when you have time, please go to this link and be advised this is just for demonstration only: https://www.shadysidehandbook.info/copy-of-point-of-care-procedure-log-1')">Observe Ultrasound Procedure</button>
-    <button class="small-button" onclick="generateEmailQRCode('High Five', 'Thank you')">High Five</button>
-<canvas id="qrcode"></canvas>
+    <button class="small-button" onclick="generateEmailQRCode('Exchange Emails', 'Exchanging contact information.', this)">Exchange Emails</button>
+    <button class="small-button" onclick="generateEmailQRCode('High Five', 'Thank you', this)">High Five</button>
+    <button class="small-button" onclick="generateEmailQRCode('Observe Ultrasound Procedure', 'Please complete this and remind me also to put in your procedure - see link.  DEMONSTRATION ONLY: https://www.shadysidehandbook.info/copy-of-point-of-care-procedure-log-1', this)">Observe Ultrasound</button>
 </div>
-
-
+<canvas id="qrcode"></canvas>
 
 <script>
     function generateQRCode(mailtoLink) {
-    if (mailtoLink) {
-        new QRious({
-            element: document.getElementById('qrcode'),
-            value: mailtoLink,
-            size: 200
+        if (mailtoLink) {
+            new QRious({
+                element: document.getElementById('qrcode'),
+                value: mailtoLink,
+                size: 200
+            });
+        }
+    }
+
+    function generateEmailQRCode(subject, body, buttonElement) {
+        var email = document.getElementById('emailInput').value;
+        if (email) {
+            var mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            localStorage.setItem('userEmail', email);
+            generateQRCode(mailtoLink);
+            setActiveButton(buttonElement);
+        } else {
+            alert("Please enter a valid email.");
+        }
+    }
+
+    function setActiveButton(selectedButton) {
+        // Remove active class from all buttons
+        var buttons = document.querySelectorAll('.small-button');
+        buttons.forEach(function(button) {
+            button.classList.remove('active-button');
         });
-    }
-}
 
-function generateEmailQRCode(subject, body) {
-    var email = document.getElementById('emailInput').value;
-    if (email) {
-        var mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        localStorage.setItem('userEmail', email);
-        generateQRCode(mailtoLink);
-    } else {
-        alert("Please enter a valid email.");
+        // Add active class to the clicked button
+        selectedButton.classList.add('active-button');
     }
-}
 
-window.onload = function() {
-    var savedEmail = localStorage.getItem('userEmail');
-    if (savedEmail) {
-        document.getElementById('emailInput').value = savedEmail;
-    }
-};
-
+    window.onload = function() {
+        var savedEmail = localStorage.getItem('userEmail');
+        if (savedEmail) {
+            document.getElementById('emailInput').value = savedEmail;
+        }
+    };
 </script>
 
 </body>
