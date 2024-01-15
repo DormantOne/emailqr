@@ -5,7 +5,6 @@
     <title>Email QR Code Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        /* Basic Styles for Larger Devices */
         .small-button {
             padding: 5px 10px;
             font-size: 12px;
@@ -15,28 +14,26 @@
             margin-bottom: 10px;
         }
 
-        /* Adjusted Styles for Mobile Devices */
         @media (max-width: 600px) {
             body {
-                font-size: 14px; /* Slightly smaller font size */
+                font-size: 14px;
             }
             #emailInput, .small-button {
-                width: 90%; /* Reducing width to 90% */
-                padding: 10px; /* Slightly smaller padding */
-                font-size: 16px; /* Slightly smaller font size for buttons and input */
+                width: 90%;
+                padding: 10px;
+                font-size: 16px;
                 margin-bottom: 10px;
             }
             canvas {
-                width: 90%; /* Reducing width to 90% */
-                max-width: 250px; /* Slightly smaller max width of QR code */
+                width: 90%;
+                max-width: 250px;
                 height: auto;
                 margin-top: 15px;
             }
         }
 
-        /* Style for active button */
         .active-button {
-            background-color: #4CAF50; /* Example active color, change as needed */
+            background-color: #4CAF50;
             color: white;
         }
     </style>
@@ -54,6 +51,7 @@
     <button class="small-button" onclick="generateEmailQRCode('Observe Ultrasound Procedure', 'Please complete this and remind me also to put in your procedure - see link.  DEMONSTRATION ONLY: https://www.shadysidehandbook.info/copy-of-point-of-care-procedure-log-1', this)">Observe Ultrasound</button>
 </div>
 <canvas id="qrcode"></canvas>
+<p id="emailDetails"></p> <!-- Display email details -->
 
 <script>
     function generateQRCode(mailtoLink) {
@@ -73,19 +71,17 @@
             localStorage.setItem('userEmail', email);
             generateQRCode(mailtoLink);
             setActiveButton(buttonElement);
+            document.getElementById('emailDetails').innerText = `Email body: "${body}"`;
         } else {
             alert("Please enter a valid email.");
         }
     }
 
     function setActiveButton(selectedButton) {
-        // Remove active class from all buttons
         var buttons = document.querySelectorAll('.small-button');
         buttons.forEach(function(button) {
             button.classList.remove('active-button');
         });
-
-        // Add active class to the clicked button
         selectedButton.classList.add('active-button');
     }
 
