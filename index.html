@@ -10,6 +10,7 @@
             font-size: 12px;
             margin: 0 5px;
         }
+
         #emailInput, .small-button {
             margin-bottom: 10px;
         }
@@ -18,12 +19,14 @@
             body {
                 font-size: 14px;
             }
+
             #emailInput, .small-button {
                 width: 90%;
                 padding: 10px;
                 font-size: 16px;
                 margin-bottom: 10px;
             }
+
             canvas {
                 width: 90%;
                 max-width: 250px;
@@ -41,57 +44,68 @@
 </head>
 <body>
 
-<h1>Email QR Code Generator</h1>
+    <div>
+        <button id="handbookButton" class="small-button" onclick="generateStaticQRCode()">Share Handbook</button>
+    </div>
 
-<p>Please put in your email here:</p>
-<input type="email" id="emailInput" placeholder="Enter your email">
-<div>
-    <button class="small-button" onclick="generateEmailQRCode('Exchange Emails', 'Exchanging contact information.', this)">Exchange Emails</button>
-    <button class="small-button" onclick="generateEmailQRCode('High Five', 'Thank you', this)">High Five</button>
-    <button class="small-button" onclick="generateEmailQRCode('Observe Ultrasound Procedure', 'Please complete this and remind me also to put in your procedure - see link.  DEMONSTRATION ONLY: https://www.shadysidehandbook.info/copy-of-point-of-care-procedure-log-1', this)">Observe Ultrasound</button>
-</div>
-<canvas id="qrcode"></canvas>
-<p id="emailDetails"></p> <!-- Display email details -->
+    <p>Please put in your email here:</p>
+    <input type="email" id="emailInput" placeholder="Enter your email">
+    <div>
+        <button class="small-button" onclick="generateEmailQRCode('Exchange Emails', 'Exchanging contact information.', this)">Exchange Emails</button>
+        <button class="small-button" onclick="generateEmailQRCode('High Five', 'Thank you', this)">High Five</button>
+        <button class="small-button" onclick="generateEmailQRCode('Observe Ultrasound Procedure', 'Please complete this and remind me also to put in your procedure - see link.  DEMONSTRATION ONLY: https://www.shadysidehandbook.info/copy-of-point-of-care-procedure-log-1', this)">Observe Ultrasound</button>
+    </div>
+    <canvas id="qrcode"></canvas>
+    <p id="emailDetails"></p> <!-- Display email details -->
 
-<script>
-    function generateQRCode(mailtoLink) {
-        if (mailtoLink) {
-            new QRious({
-                element: document.getElementById('qrcode'),
-                value: mailtoLink,
-                size: 200
+    <script>
+        function generateQRCode(link) {
+            if (link) {
+                new QRious({
+                    element: document.getElementById('qrcode'),
+                    value: link,
+                    size: 200
+                });
+            }
+        }
+
+        function generateStaticQRCode() {
+            var handbookLink = "https://www.shadysidehandbook.info/";
+            generateQRCode(handbookLink);
+            setActiveButton(document.getElementById('handbookButton')); // Set the handbook button as active
+            document.getElementById('emailDetails').innerText = '';
+        }
+
+        function generateEmailQRCode(subject, body, buttonElement) {
+            var email = document.getElementById('emailInput').value;
+            if (email) {
+                var mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                localStorage.setItem('userEmail', email);
+                generateQRCode(mailtoLink);
+                setActiveButton(buttonElement);
+                document.getElementById('emailDetails').innerText = `Email body: "${body}"`;
+            } else {
+                alert("Please enter a valid email.");
+            }
+        }
+
+        function setActiveButton(selectedButton) {
+            var buttons = document.querySelectorAll('.small-button');
+            buttons.forEach(function (button) {
+                button.classList.remove('active-button');
             });
+            if (selectedButton) {
+                selectedButton.classList.add('active-button');
+            }
         }
-    }
 
-    function generateEmailQRCode(subject, body, buttonElement) {
-        var email = document.getElementById('emailInput').value;
-        if (email) {
-            var mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            localStorage.setItem('userEmail', email);
-            generateQRCode(mailtoLink);
-            setActiveButton(buttonElement);
-            document.getElementById('emailDetails').innerText = `Email body: "${body}"`;
-        } else {
-            alert("Please enter a valid email.");
-        }
-    }
-
-    function setActiveButton(selectedButton) {
-        var buttons = document.querySelectorAll('.small-button');
-        buttons.forEach(function(button) {
-            button.classList.remove('active-button');
-        });
-        selectedButton.classList.add('active-button');
-    }
-
-    window.onload = function() {
-        var savedEmail = localStorage.getItem('userEmail');
-        if (savedEmail) {
-            document.getElementById('emailInput').value = savedEmail;
-        }
-    };
-</script>
+        window.onload = function () {
+            var savedEmail = localStorage.getItem('userEmail');
+            if (savedEmail) {
+                document.getElementById('emailInput').value = savedEmail;
+            }
+        };
+    </script>
 
 </body>
 </html>
