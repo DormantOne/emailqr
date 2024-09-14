@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email QR Code Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .small-button {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 0 5px;
+        }
+
+        #emailInput, .small-button {
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 14px;
+            }
+
+            #emailInput, .small-button {
+                width: 90%;
+                padding: 10px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            canvas {
+                width: 90%;
+                max-width: 250px;
+                height: auto;
+                margin-top: 15px;
+            }
+        }
+
+        .active-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
+</head>
+<body>
+
+    <div>
+        <button id="handbookButton" class="small-button" onclick="generateStaticQRCode()">Share Handbook</button>
+    </div>
+
+    <p>Please put in your email here:</p>
+    <input type="email" id="emailInput" placeholder="Enter your email">
+    <div>
+        <button class="small-button" onclick="generateEmailQRCode('Exchange Emails', 'Exchanging contact information.', this)">Exchange Emails</button>
+        <button class="small-button" onclick="generateEmailQRCode('High Five', 'Thank you', this)">High Five</button>
+        <button class="small-button" onclick="generateEmailQRCode('Observe Ultrasound Procedure', 'Please complete this and remind me also to put in your procedure - see link. DEMONSTRATION ONLY: https://sohnenae.wixsite.com/website-4/copy-of-point-of-care-procedure-log-1', this)">Observe Ultrasound</button> <!-- Updated link here -->
+    </div>
+    <canvas id="qrcode"></canvas>
+    <p id="emailDetails"></p> <!-- Display email details -->
+
+    <script>
+        function generateQRCode(link) {
+            if (link) {
+                new QRious({
+                    element: document.getElementById('qrcode'),
+                    value: link,
+                    size: 200
+                });
+            }
+        }
+
+        function generateStaticQRCode() {
+            var handbookLink = "https://sohnenae.wixsite.com/website-4";  // Updated link here
+            generateQRCode(handbookLink);
+            setActiveButton(document.getElementById('handbookButton')); // Set the handbook button as active
+            document.getElementById('emailDetails').innerText = '';
+        }
+
+        function generateEmailQRCode(subject, body, buttonElement) {
+            var email = document.getElementById('emailInput').value;
+            if (email) {
+                var mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                localStorage.setItem('userEmail', email);
+                generateQRCode(mailtoLink);
+                setActiveButton(buttonElement);
+                document.getElementById('emailDetails').innerText = `Email body: "${body}"`;
+            } else {
+                alert("Please enter a valid email.");
+            }
+        }
+
+        function setActiveButton(selectedButton) {
+            var buttons = document.querySelectorAll('.small-button');
+            buttons.forEach(function (button) {
+                button.classList.remove('active-button');
+            });
+            if (selectedButton) {
+                selectedButton.classList.add('active-button');
+            }
+        }
+
+        window.onload = function () {
+            var savedEmail = localStorage.getItem('userEmail');
+            if (savedEmail) {
+                document.getElementById('emailInput').value = savedEmail;
+            }
+        };
+    </script>
+
+</body>
+</html>
