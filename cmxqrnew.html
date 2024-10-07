@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email QR Code Generator with vCard Persistence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .small-button {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 0 5px;
+            border: none;
+            cursor: pointer;
+            color: black;
+            background-color: transparent;
+        }
+
+        /* Upper buttons: Navy blue */
+        .upper-button {
+            background-color: navy;
+            color: white;
+        }
+
+        /* Lower buttons with border */
+        .lower-button {
+            border: 1px solid black; /* Added border to define */
+            background-color: transparent;
+        }
+
+        /* All buttons turn green when active */
+        .small-button.active-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* Change color on hover */
+        .small-button:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #emailInput, .small-button {
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 14px;
+            }
+
+            #emailInput, .small-button {
+                width: 90%;
+                padding: 10px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            canvas {
+                width: 90%;
+                max-width: 250px;
+                height: auto;
+                margin-top: 15px;
+            }
+        }
+
+        /* New styles for input fields */
+        #vcardForm {
+            margin-top: 20px;
+        }
+
+        #vcardForm input {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Style for the purge button */
+        #purgeButton {
+            margin-top: 20px;
+            background-color: red;
+            color: white;
+        }
+
+        /* Style for the QR code label */
+        #qrLabel {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+
+    <!-- Include QRious -->
+    <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
+</head>
+<body>
+
+    <div>
+        <button id="handbookButton" class="small-button upper-button" onclick="generateStaticQRCode()">Share Handbook</button>
+        <button class="small-button upper-button" onclick="sendToMyEmail()">Send to My Email</button>
+    </div>
+
+    <p>Please put in your email here:</p>
+    <input type="email" id="emailInput" placeholder="Enter your email">
+
+    <div>
+        <button class="small-button lower-button" onclick="generateEmailQRCode('Exchange Emails', 'Exchanging contact information.', this)">Exchange Emails</button>
+        <button class="small-button lower-button" onclick="generateEmailQRCode('High Five', 'Thank you', this)">High Five</button>
+        <button class="small-button lower-button" onclick="showVCardForm()">Share Contact (vCard)</button>
+    </div>
+
+    <!-- Form for vCard details -->
+    <div id="vcardForm" style="display:none;">
+        <h3>Enter your contact information:</h3>
+        <input type="text" id="vcardName" placeholder="Full Name">
+        <input type="text" id="vcardPhone" placeholder="Phone Number">
+        <input type="email" id="vcardEmail" placeholder="Email">
+        <input type="text" id="vcardOrganization" placeholder="Organization">
+        <button class="small-button lower-button" onclick="generateVCardQRCode()">Generate vCard QR Code</button>
+    </div>
+
+    <canvas id="qrcode"></canvas>
+    <p id="qrLabel"></p>
+    <p id="emailDetails"></p>
+
+    <!-- Purge Local Storage Button -->
+    <button id="purgeButton" class="small-button" onclick="purgeLocalStorage()">Purge Local Storage</button>
+
+    <script>
+        function generateQRCode(link) {
+            var canvas = document.getElementById('qrcode');
+            var context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('qrLabel').innerText = '';
+
+            if (link) {
+                var qr = new QRious({
+                    element: canvas,
+                    value: link,
+                    size: 200
+                });
+            }
+        }
+
+        function generateStaticQRCode() {
+            var handbookLink = "https://cmihandbookprototype.z13.web.core.windows.net/";
+            generateQRCode(handbookLink);
+            setActiveButton(document.getElementById('handbookButton'));
+            document.getElementById('emailDetails').innerText = '';
+            document.getElementById('qrLabel').innerText = 'QR for CMX Handbook';
+            hideVCardForm();
+        }
+
+        function sendToMyEmail() {
+            var email = document.getElementById('emailInput').value;
+            if (!email) {
+                email = prompt("Please enter your email:");
+                if (email) {
+                    document.getElementById('emailInput').value = email;
+                    localStorage.setItem('userEmail', email);
+                } else {
+                    alert("Email is required.");
+                    return;
+                }
+            }
+
+            var subject = "Handbook Link";
+            var body = "Here is the handbook link: https://cmihandbookprototype.z13.web.core.windows.net/";
+            var mailtoLink = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+            window.location.href = mailtoLink;
+
+            setActiveButton(null);
+            document.getElementById('emailDetails').innerText = '';
+            document.getElementById('qrLabel').innerText = '';
+            hideVCardForm();
+
+            generateQRCode(null);
+        }
+
+        function generateEmailQRCode(subject, body, buttonElement) {
+            var email = document.getElementById('emailInput').value;
+            if (email) {
+                var mailtoLink = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                localStorage.setItem('userEmail', email);
+                generateQRCode(mailtoLink);
+                setActiveButton(buttonElement);
+                document.getElementById('emailDetails').innerText = '';
+                document.getElementById('qrLabel').innerText = 'QR for ' + subject;
+                hideVCardForm();
+            } else {
+                alert("Please enter a valid email.");
+            }
+        }
+
+        function setActiveButton(selectedButton) {
+            var buttons = document.querySelectorAll('.small-button');
+            buttons.forEach(function (button) {
+                button.classList.remove('active-button');
+            });
+            if (selectedButton) {
+                selectedButton.classList.add('active-button');
+            }
+        }
+
+        function showVCardForm() {
+            document.getElementById('vcardForm').style.display = 'block';
+            setActiveButton(null);
+            loadVCardData();
+            generateQRCode(null);
+            document.getElementById('emailDetails').innerText = '';
+            document.getElementById('qrLabel').innerText = '';
+        }
+
+        function hideVCardForm() {
+            document.getElementById('vcardForm').style.display = 'none';
+        }
+
+        function generateVCardQRCode() {
+            var name = document.getElementById('vcardName').value;
+            var phone = document.getElementById('vcardPhone').value;
+            var email = document.getElementById('vcardEmail').value;
+            var organization = document.getElementById('vcardOrganization').value;
+
+            if (!name && !phone && !email) {
+                alert('Please enter at least one contact detail (name, phone, or email).');
+                return;
+            }
+
+            var vCardData =
+                'BEGIN:VCARD\n' +
+                'VERSION:3.0\n' +
+                (name ? 'N:' + name + '\nFN:' + name + '\n' : '') +
+                (organization ? 'ORG:' + organization + '\n' : '') +
+                (phone ? 'TEL;TYPE=CELL:' + phone + '\n' : '') +
+                (email ? 'EMAIL:' + email + '\n' : '') +
+                'END:VCARD';
+
+            generateQRCode(vCardData);
+            document.getElementById('emailDetails').innerText = '';
+            document.getElementById('qrLabel').innerText = 'QR for vCard';
+
+            var vCardInfo = {
+                name: name,
+                phone: phone,
+                email: email,
+                organization: organization
+            };
+            localStorage.setItem('vCardInfo', JSON.stringify(vCardInfo));
+
+            setActiveButton(null);
+        }
+
+        function loadVCardData() {
+            var vCardInfo = localStorage.getItem('vCardInfo');
+            if (vCardInfo) {
+                vCardInfo = JSON.parse(vCardInfo);
+                document.getElementById('vcardName').value = vCardInfo.name || '';
+                document.getElementById('vcardPhone').value = vCardInfo.phone || '';
+                document.getElementById('vcardEmail').value = vCardInfo.email || '';
+                document.getElementById('vcardOrganization').value = vCardInfo.organization || '';
+            }
+        }
+
+        function purgeLocalStorage() {
+            if (confirm('Are you sure you want to purge all saved data?')) {
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('vCardInfo');
+                document.getElementById('emailInput').value = '';
+                document.getElementById('vcardName').value = '';
+                document.getElementById('vcardPhone').value = '';
+                document.getElementById('vcardEmail').value = '';
+                document.getElementById('vcardOrganization').value = '';
+                document.getElementById('emailDetails').innerText = '';
+                document.getElementById('qrLabel').innerText = '';
+                generateQRCode(null);
+                alert('All saved data has been purged.');
+            }
+        }
+
+        window.onload = function () {
+            var savedEmail = localStorage.getItem('userEmail');
+            if (savedEmail) {
+                document.getElementById('emailInput').value = savedEmail;
+            }
+        };
+    </script>
+
+</body>
+</html>
